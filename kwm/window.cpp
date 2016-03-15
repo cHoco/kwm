@@ -253,18 +253,27 @@ bool FocusWindowOfOSX()
 
 bool ShouldWindowGainFocus(window_info *Window)
 {
+    AXUIElementRef WindowRef;
+    AXUIElementRef hasWindow = NULL;
+    if(GetWindowRef(Window, &WindowRef)) {
+        AXError Error = AXUIElementCopyAttributeValue(WindowRef, kAXWindowAttribute, (CFTypeRef*)&hasWindow);
+        if (Error == kAXErrorSuccess || Error == kAXErrorNoValue) {
+            return false;
+        }
+    }
+
     return Window->Layer == CGWindowLevelForKey(kCGNormalWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
-           Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey) ||
-           Window->Layer == 1490; // Note(koekeishiya): Unknown WindowLevelKey constant
+        Window->Layer == CGWindowLevelForKey(kCGFloatingWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGDockWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGMainMenuWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGMaximumWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGModalPanelWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGUtilityWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGOverlayWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGHelpWindowLevelKey) ||
+        Window->Layer == CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey) ||
+        Window->Layer == 1490; // Note(koekeishiya): Unknown WindowLevelKey constant
 }
 
 void FocusWindowBelowCursor()
