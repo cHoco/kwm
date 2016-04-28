@@ -411,6 +411,7 @@ struct kwm_tiling
     bool LockToContainer;
 
     std::map<unsigned int, screen_info> DisplayMap;
+    std::map<unsigned int, screen_info> SavedDisplayMap;
     std::map<unsigned int, space_settings> DisplaySettings;
     std::map<space_identifier, space_settings> SpaceSettings;
 

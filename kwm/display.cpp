@@ -46,6 +46,30 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
             savedDisplayID = GetDisplayIDFromIdentifier(displayIdentifier);
         if (!savedDisplayID) {
             DEBUG("New display detected! DisplayID: " << Display << " Index: " << KWMScreen.ActiveCount);
+            auto v = GetScreenSpaceUUIDCGSpaceIDMap(&KWMTiling.DisplayMap[Display]);
+            // for (int i=0; i<v.size();i++){
+            //     DEBUG("Ordered shit " << v[i]);
+            // }
+            std::map<unsigned int, screen_info>::iterator It = KWMTiling.SavedDisplayMap.find(Display);
+            if(It != KWMTiling.SavedDisplayMap.end()) {
+                DEBUG("Saved screen info found for new display");
+                KWMTiling.DisplayMap[Display] = KWMTiling.SavedDisplayMap[Display];
+                KWMTiling.SavedDisplayMap.erase(Display);
+                UpdateWindowTree();
+                screen_info *Screen = &KWMTiling.DisplayMap[Display];
+                UpdateExistingScreenInfo(Screen, Display, Screen->ID);
+                std::map<int, space_info>::iterator It;
+                for(It = Screen->Space.begin(); It != Screen->Space.end(); ++It)
+                {
+                    if(It->second.Managed || It->second.Settings.Mode == SpaceModeFloating)
+                    {
+                        if(It->first == Screen->ActiveSpace)
+                            UpdateSpaceOfScreen(&It->second, Screen);
+                        else
+                            It->second.NeedsUpdate = true;
+                    }
+                }
+            }
         }
         else if (savedDisplayID != Display) {
             DEBUG("This display being added had saved ID: " << savedDisplayID);
@@ -64,25 +88,22 @@ void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSu
         if(displayIdentifier)
             savedDisplayID = GetDisplayIDFromIdentifier(displayIdentifier);
         if ((!savedDisplayID) || (savedDisplayID == Display)) {
-            // Display has been removed
-            if(CGDisplayIsAsleep(Display))
-            {
-                DEBUG("Display " << Display << " is asleep!");
-                RefreshActiveDisplays(false);
-            }
-            else
-            {
-                DEBUG("Display has been removed! DisplayID: " << Display);
-                std::map<int, space_info>::iterator It;
-                for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
-                    DestroyNodeTree(It->second.RootNode);
+            DEBUG("Display has been removed! DisplayID: " << Display);
+            auto v = GetScreenSpaceUUIDCGSpaceIDMap(&KWMTiling.DisplayMap[Display]);
+            // for (int i=0; i<v.size();i++){
+            //     DEBUG("Ordered shit " << v[i]);
+            // }
+            KWMTiling.SavedDisplayMap[Display] = KWMTiling.DisplayMap[Display];
 
-                if(KWMTiling.DisplayMap[Display].Identifier)
-                    CFRelease(KWMTiling.DisplayMap[Display].Identifier);
+            // std::map<int, space_info>::iterator It;
+            // for(It = KWMTiling.DisplayMap[Display].Space.begin(); It != KWMTiling.DisplayMap[Display].Space.end(); ++It)
+            //     DestroyNodeTree(It->second.RootNode);
+            //
+            // if(KWMTiling.DisplayMap[Display].Identifier)
+            //     CFRelease(KWMTiling.DisplayMap[Display].Identifier);
 
-                KWMTiling.DisplayMap.erase(Display);
-                RefreshActiveDisplays(true);
-            }
+            KWMTiling.DisplayMap.erase(Display);
+            RefreshActiveDisplays(true);
         }
         else if (savedDisplayID != Display) {
             DEBUG("This display being removed had saved ID: " << savedDisplayID);

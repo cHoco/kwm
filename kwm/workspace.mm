@@ -184,6 +184,33 @@ int GetNumberOfSpacesOfDisplay(screen_info *Screen)
     return Result;
 }
 
+std::map<std::string, int> GetScreenSpaceUUIDCGSpaceIDMap(screen_info *Screen)
+{
+    std::map<std::string, int> SpacesMap;
+    NSString *CurrentIdentifier = (__bridge NSString *)Screen->Identifier;
+
+    CFArrayRef ScreenDictionaries = CGSCopyManagedDisplaySpaces(CGSDefaultConnection);
+                DEBUG("UFFA");
+    for(NSDictionary *ScreenDictionary in (__bridge NSArray *)ScreenDictionaries)
+    {
+                DEBUG("NO");
+        NSString *ScreenIdentifier = ScreenDictionary[@"Display Identifier"];
+        if ([ScreenIdentifier isEqualToString:CurrentIdentifier])
+        {
+                DEBUG("Fanculo");
+            NSArray *Spaces = ScreenDictionary[@"Spaces"];
+            for (id Space in Spaces) {
+                std::string spaceUUID = std::string([Space[@"uuid"] UTF8String]);
+                DEBUG("ANCA QUA");
+                SpacesMap[spaceUUID] = [Space[@"id64"] intValue];
+            }
+        }
+    }
+
+    CFRelease(ScreenDictionaries);
+    return SpacesMap;
+}
+
 int GetSpaceNumberFromCGSpaceID(screen_info *Screen, int CGSpaceID)
 {
     int Result = -1;

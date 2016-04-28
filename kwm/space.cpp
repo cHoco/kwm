@@ -251,6 +251,11 @@ void UpdateActiveSpace()
     if(KWMScreen.PrevSpace != KWMScreen.Current->ActiveSpace)
     {
         DEBUG("UpdateActiveSpace() Space transition ended " << KWMScreen.PrevSpace << " -> " << KWMScreen.Current->ActiveSpace);
+        auto v = GetScreenSpaceUUIDCGSpaceIDMap(KWMScreen.Current);
+        DEBUG("FINO A QUA");
+        for (auto i=v.begin(); i!=v.end();i++){
+            DEBUG("Space Identifier: " << i->first << " CGSpaceID: " << i->second);
+        }
         if(KWMScreen.Current->TrackSpaceChange)
             KWMScreen.Current->History.push(KWMScreen.PrevSpace);
         else

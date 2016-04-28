@@ -4,6 +4,7 @@
 #include "types.h"
 
 extern int GetActiveSpaceOfDisplay(screen_info *Screen);
+extern std::map<std::string, int> GetScreenSpaceUUIDCGSpaceIDMap(screen_info *Screen);
 
 void DisplayReconfigurationCallBack(CGDirectDisplayID Display, CGDisplayChangeSummaryFlags Flags, void *UserInfo);
 void GetActiveDisplays();
