@@ -59,7 +59,7 @@ class OverlayWindow
 		window.ignoresMouseEvents = true
 		window.level = Int(CGWindowLevelForKey(.floatingWindow))
 		window.hasShadow = false
-		window.collectionBehavior = .canJoinAllSpaces
+		window.collectionBehavior = [.moveToActiveSpace, .transient, .ignoresCycle]
 		window.isReleasedWhenClosed = false
 
 		overlayView = OverlayView(frame: window.contentView!.bounds, borderColor: borderColor, borderWidth: borderWidth, cornerRadius: cornerRadius)
@@ -81,6 +81,11 @@ class OverlayWindow
 	{
 		window.setFrame(grownFrame, display: true)
 		overlayView.needsDisplay = true
+	}
+
+	func showWindow()
+	{
+		window.makeKeyAndOrderFront(nil)
 	}
 
 	var nodeFrame: NSRect
@@ -154,6 +159,7 @@ class OverlayController: NSObject, NSApplicationDelegate
 			border.borderWidth = borderWidth
 			border.cornerRadius = cornerRadius
 			border.updateFrame()
+			border.showWindow()
 		}
 	}
 
